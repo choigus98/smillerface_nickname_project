@@ -1,8 +1,14 @@
 import React from 'react'
-import * as styled from 'styled-components'
+import styled from 'styled-components'
 
 const Nav = () => {
-  return <div className={classes.NavWrap}></div>
+  return <S.NavWrap>123123</S.NavWrap>
 }
 
 export default Nav
+
+const S = {
+  NavWrap: styled.div`
+    border: 1px solid balck;
+  `,
+}
