@@ -1,5 +1,6 @@
 import React from 'react'
-import styled from 'styled-components'
+import styled from 'styled-components/macro'
+import Logo from './Logo.png'
 
 const S = {
   NavWrap: styled.div`
@@ -7,18 +8,23 @@ const S = {
     align-items: center;
     justify-content: center;
     width: 100%;
-    height: 55px;
-    /* border: 1px solid white; */
-    /* border-radius: 10px; */
-    font-family: 'Nerko One';
-    font-size: 40px;
-    color: white;
-    background-color: rgba(0, 0, 0, 0.09);
+    height: 70px;
+    img {
+      height: 100%;
+      margin-top: 10px;
+      filter: invert(100);
+    }
   `,
 }
 
 const Nav = (): JSX.Element => {
-  return <S.NavWrap>YamulDDak</S.NavWrap>
+  return (
+    <S.NavWrap>
+      {/* <p className="Face">F</p>ace<p className="To">T</p>o
+      <p className="NickName">N</p>ickName */}
+      <img src={Logo} alt="logo" />
+    </S.NavWrap>
+  )
 }
 
 export default Nav

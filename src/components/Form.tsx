@@ -1,6 +1,6 @@
 /* eslint-disable no-restricted-syntax */
 import React, { useState } from 'react'
-import styled from 'styled-components'
+import styled from 'styled-components/macro'
 import axios from 'axios'
 
 const S = {
@@ -9,17 +9,21 @@ const S = {
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid white;
+    ${({ imageSrc }) => {
+      return imageSrc ? '' : 'border: 1px solid white'
+    }};
+
     border-radius: 5px;
     margin-top: 10px;
     margin-bottom: 10px;
-    height: 70vh;
+    height: 60vh;
     color: white;
     ${({ imageSrc }) => {
       return imageSrc ? `background-image: url(${imageSrc})` : ''
     }};
     background-size: contain;
     background-repeat: no-repeat;
+    background-position: center;
     resize: both;
   `,
   AddBtn: styled.p`
@@ -51,11 +55,20 @@ const S = {
   Description: styled.span`
     color: yellow;
   `,
+  Result: styled.div`
+    color: white;
+  `,
+}
+
+export interface ResultInfo {
+  faces: [] | undefined
+  info: object | undefined
 }
 
 const Form = (): JSX.Element => {
   const [image, setImage] = useState<Blob>()
   const [imageSrc, setImageSrc] = useState('')
+  const [result, setResult] = useState<any>()
 
   const encodeFileToBase64 = (fileBlob: Blob) => {
     const reader = new FileReader()
@@ -92,20 +105,20 @@ const Form = (): JSX.Element => {
       },
       data: formData,
     }
-    // eslint-disable-next-line no-console
-    axios(option)
-      // .then(console.log)
-      .then((res) => {
-        return JSON.stringify(res.data)
-      })
-      .then((data) => {
-        return console.log(data)
-      })
+    axios(option).then((res) => {
+      JSON.stringify(res.data)
+      setResult(res.data)
+    })
   }
+
+  // if (result) {
+  //   console.log(result?.faces[0].celebrity.value)
+  // }
 
   const submitFormData = () => {
     createFormData()
   }
+
   return (
     <>
       <S.Form onChange={createFormData} imageSrc={imageSrc}>
@@ -118,14 +131,26 @@ const Form = (): JSX.Element => {
         />
         {!imageSrc && <S.AddBtn>+</S.AddBtn>}
       </S.Form>
-      <S.SubmitBtn type="button" onClick={submitFormData}>
-        submit
-      </S.SubmitBtn>
-      <S.DescriptionWrap>
-        <S.Description>
-          사진을 등록후 제출해주시면 닉네임을 결과가 나옵니다 !
-        </S.Description>
-      </S.DescriptionWrap>
+      {imageSrc && !result && (
+        <S.SubmitBtn type="button" onClick={submitFormData}>
+          submit
+        </S.SubmitBtn>
+      )}
+      {!result && (
+        <S.DescriptionWrap>
+          <S.Description>
+            사진을 등록후 제출해주시면 닉네임을 만들어 드립니다 !
+          </S.Description>
+        </S.DescriptionWrap>
+      )}
+      {result !== null && (
+        <>
+          <S.Result>{result?.faces[0].celebrity.value}</S.Result>
+          <S.Result>
+            {Math.round(Number(result?.faces[0].celebrity.confidence) * 100)}%
+          </S.Result>
+        </>
+      )}
     </>
   )
 }
