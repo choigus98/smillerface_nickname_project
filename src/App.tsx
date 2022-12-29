@@ -4,7 +4,6 @@ import { useRecoilValue } from 'recoil'
 import Form from './components/Form'
 import Footer from './components/Footer'
 import Logo from './components/Logo.png'
-import { captureAtom } from './recoil/store'
 
 const S = {
   Div: styled.div`
@@ -37,35 +36,12 @@ const S = {
 }
 
 const App = (): JSX.Element => {
-  const isCaptureOn = useRecoilValue(captureAtom)
-
-  const onSaveAs = (uri: string, filename: string) => {
-    const link = document.createElement('a')
-    document.body.appendChild(link)
-    link.href = uri
-    link.download = filename
-    link.click()
-    document.body.removeChild(link)
-  }
-  const onCapture = () => {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const screenShot = document.getElementById('screenShot')!
-    html2canvas(screenShot).then((canvas) => {
-      onSaveAs(canvas.toDataURL('image/png'), 'image-download.png')
-    })
-  }
-
   return (
     <S.Div className="App" id="screenShot">
       <S.NavWrap>
         <img src={Logo} alt="logo" />
       </S.NavWrap>
       <Form />
-      {isCaptureOn && (
-        <S.Button onClick={onCapture} type="button">
-          Capture
-        </S.Button>
-      )}
       <Footer />
     </S.Div>
   )

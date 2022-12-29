@@ -2,13 +2,14 @@
 import React, { useState } from 'react'
 import styled from 'styled-components/macro'
 import axios from 'axios'
-import { useSetRecoilState } from 'recoil'
+import { useRecoilState } from 'recoil'
 import imageCompression from 'browser-image-compression'
-import { captureAtom } from '../recoil/store'
+import { submitAtom } from '../recoil/store'
 
 const S = {
   Form: styled.div<{ imageSrc: string }>`
     position: relative;
+    width: 80%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -17,7 +18,7 @@ const S = {
     }};
 
     border-radius: 5px;
-    margin: 10px 40px 10px 40px;
+    margin: 10px 15px 10px 15px;
     height: 55vh;
     color: white;
     ${({ imageSrc }) => {
@@ -53,6 +54,7 @@ const S = {
     justify-content: center;
     border: 1px solid yellow;
     height: 50px;
+    padding: 10px;
   `,
   Description: styled.span`
     color: yellow;
@@ -81,19 +83,7 @@ const Form = (): JSX.Element => {
   const [image, setImage] = useState<Blob>()
   const [imageSrc, setImageSrc] = useState('')
   const [result, setResult] = useState<ResultInfo | null>()
-  const setIsCapture = useSetRecoilState(captureAtom)
-
-  // const encodeFileToBase64 = (fileBlob: Blob) => {
-  //   const reader = new FileReader()
-  //   reader.readAsDataURL(fileBlob)
-  //   return new Promise<void>((resolve) => {
-  //     reader.onload = () => {
-  //       const previewResult = reader.result as string
-  //       setImageSrc(previewResult)
-  //       resolve()
-  //     }
-  //   })
-  // }
+  const [isSubmitOn, setIsSubmitOn] = useRecoilState(submitAtom)
 
   const imageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -108,12 +98,12 @@ const Form = (): JSX.Element => {
         const promise = imageCompression.getDataUrlFromFile(compressedFile)
         promise.then((urldata) => {
           setImageSrc(urldata)
+          setIsSubmitOn(true)
         })
       } catch (error) {
         // eslint-disable-next-line no-console
         console.log(error)
       }
-      // encodeFileToBase64(imageFile)
     }
   }
 
@@ -129,7 +119,6 @@ const Form = (): JSX.Element => {
       axios(option).then((res) => {
         JSON.stringify(res.data)
         setResult(res.data)
-        setIsCapture(true)
       })
     }
   }
@@ -150,12 +139,12 @@ const Form = (): JSX.Element => {
         />
         {!imageSrc && <S.AddBtn>+</S.AddBtn>}
       </S.Form>
-      {imageSrc && !result && (
+      {isSubmitOn && (
         <S.SubmitBtn type="button" onClick={submitFormData}>
           submit
         </S.SubmitBtn>
       )}
-      {!result && (
+      {!isSubmitOn && (
         <S.DescriptionWrap>
           <S.Description>
             사진을 등록후 제출해주시면 닉네임을 만들어 드립니다 !
@@ -170,7 +159,7 @@ const Form = (): JSX.Element => {
           </S.Result>
         </>
       ) : (
-        <S.Result>나의 닉네임은 무엇일까??</S.Result>
+        <S.Result>Who is your similar celebrity?</S.Result>
       )}
     </>
   )
