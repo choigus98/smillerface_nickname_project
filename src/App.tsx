@@ -1,5 +1,4 @@
 import React from 'react'
-import html2canvas from 'html2canvas'
 import styled from 'styled-components/macro'
 import { useRecoilValue } from 'recoil'
 import Form from './components/Form'
