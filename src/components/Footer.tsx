@@ -1,6 +1,5 @@
 import React from 'react'
 import styled from 'styled-components/macro'
-// import FooterAD from './FooterAD.png'
 
 const S = {
   Footer: styled.div`
@@ -11,9 +10,8 @@ const S = {
     position: absolute;
     bottom: 0;
     width: 100%;
-    /* opacity: 40%; */
     img {
-      width: 50%;
+      width: 40%;
       height: auto;
       margin-bottom: 10px;
     }

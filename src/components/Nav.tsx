@@ -12,7 +12,6 @@ const S = {
     img {
       height: 100%;
       margin-top: 10px;
-      filter: invert(100);
     }
   `,
 }
@@ -20,8 +19,6 @@ const S = {
 const Nav = (): JSX.Element => {
   return (
     <S.NavWrap>
-      {/* <p className="Face">F</p>ace<p className="To">T</p>o
-      <p className="NickName">N</p>ickName */}
       <img src={Logo} alt="logo" />
     </S.NavWrap>
   )

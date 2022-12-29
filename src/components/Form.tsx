@@ -2,6 +2,9 @@
 import React, { useState } from 'react'
 import styled from 'styled-components/macro'
 import axios from 'axios'
+import { useSetRecoilState } from 'recoil'
+import imageCompression from 'browser-image-compression'
+import { captureAtom } from '../recoil/store'
 
 const S = {
   Form: styled.div<{ imageSrc: string }>`
@@ -14,9 +17,8 @@ const S = {
     }};
 
     border-radius: 5px;
-    margin-top: 10px;
-    margin-bottom: 10px;
-    height: 60vh;
+    margin: 10px 40px 10px 40px;
+    height: 55vh;
     color: white;
     ${({ imageSrc }) => {
       return imageSrc ? `background-image: url(${imageSrc})` : ''
@@ -57,63 +59,80 @@ const S = {
   `,
   Result: styled.div`
     color: white;
+    width: 100%;
+    text-align: center;
+    font-family: 'Nerko One';
+    font-size: 30px;
+    margin-top: 10px;
   `,
 }
 
-export interface ResultInfo {
-  faces: [] | undefined
+interface ResultInfo {
+  faces: {
+    celebrity: {
+      value: string | null
+      confidence: number | null
+    }
+  }[]
   info: object | undefined
 }
 
 const Form = (): JSX.Element => {
   const [image, setImage] = useState<Blob>()
   const [imageSrc, setImageSrc] = useState('')
-  const [result, setResult] = useState<any>()
+  const [result, setResult] = useState<ResultInfo | null>()
+  const setIsCapture = useSetRecoilState(captureAtom)
 
-  const encodeFileToBase64 = (fileBlob: Blob) => {
-    const reader = new FileReader()
-    reader.readAsDataURL(fileBlob)
-    return new Promise<void>((resolve) => {
-      reader.onload = () => {
-        const previewResult = reader.result as string
-        setImageSrc(previewResult)
-        resolve()
-      }
-    })
-  }
+  // const encodeFileToBase64 = (fileBlob: Blob) => {
+  //   const reader = new FileReader()
+  //   reader.readAsDataURL(fileBlob)
+  //   return new Promise<void>((resolve) => {
+  //     reader.onload = () => {
+  //       const previewResult = reader.result as string
+  //       setImageSrc(previewResult)
+  //       resolve()
+  //     }
+  //   })
+  // }
 
-  const imageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const imageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const imageFile = e.target.files[0]
-      setImage(imageFile)
-      encodeFileToBase64(imageFile)
+      const options = {
+        maxWidthOrHeight: 1024,
+      }
+      try {
+        const compressedFile = await imageCompression(imageFile, options)
+        setImage(compressedFile)
+
+        const promise = imageCompression.getDataUrlFromFile(compressedFile)
+        promise.then((urldata) => {
+          setImageSrc(urldata)
+        })
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error)
+      }
+      // encodeFileToBase64(imageFile)
     }
   }
 
   const createFormData = () => {
     const formData = new FormData()
-    if (image) {
-      formData.append('image', image)
-    }
     const option = {
       method: 'post',
-      // url: 'https://georgeyamulddak.herokuapp.com/',
-      url: 'https://openapi.naver.com/v1/vision/celebrity',
-      headers: {
-        'X-Naver-Client-Id': 'fcb0zl9r9nENOW9M1vl_',
-        'X-Naver-Client-Secret': 'Rg2a_dNj7B',
-      },
+      url: 'https://georgeyamulddak.herokuapp.com/',
       data: formData,
     }
-    axios(option).then((res) => {
-      JSON.stringify(res.data)
-      setResult(res.data)
-    })
+    if (image) {
+      formData.append('image', image)
+      axios(option).then((res) => {
+        JSON.stringify(res.data)
+        setResult(res.data)
+        setIsCapture(true)
+      })
+    }
   }
-
-  // if (result) {
-  //   console.log(result?.faces[0].celebrity.value)
-  // }
 
   const submitFormData = () => {
     createFormData()
@@ -143,13 +162,15 @@ const Form = (): JSX.Element => {
           </S.Description>
         </S.DescriptionWrap>
       )}
-      {result !== null && (
+      {result ? (
         <>
           <S.Result>{result?.faces[0].celebrity.value}</S.Result>
           <S.Result>
             {Math.round(Number(result?.faces[0].celebrity.confidence) * 100)}%
           </S.Result>
         </>
+      ) : (
+        <S.Result>나의 닉네임은 무엇일까??</S.Result>
       )}
     </>
   )
