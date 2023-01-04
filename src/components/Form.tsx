@@ -56,7 +56,6 @@ const S = {
     justify-content: center;
     border: 1px solid yellow;
     height: 50px;
-    padding: 10px;
   `,
   Description: styled.span`
     color: yellow;
