@@ -162,9 +162,11 @@ const Form = (): JSX.Element => {
       {isLoading ? (
         <FadeLoader color="#36d7b7" />
       ) : (
-        <S.SubmitBtn type="button" onClick={submitFormData}>
-          Create DamNick
-        </S.SubmitBtn>
+        !result && (
+          <S.SubmitBtn type="button" onClick={submitFormData}>
+            Create DamNick
+          </S.SubmitBtn>
+        )
       )}
       {!isSubmitOn && (
         <S.DescriptionWrap>
