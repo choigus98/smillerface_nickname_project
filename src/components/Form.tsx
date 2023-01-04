@@ -170,8 +170,7 @@ const Form = (): JSX.Element => {
       )}
       {!isSubmitOn && (
         <S.DescriptionWrap>
-          <S.Description>나의 닮은꼴 유명인은 누구 ?</S.Description>
-          <S.Description>닉네임도 지어드림.</S.Description>
+          <S.Description>DamNick = 닮은꼴 닉네임</S.Description>
         </S.DescriptionWrap>
       )}
       {result ? (
