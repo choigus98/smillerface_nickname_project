@@ -4,6 +4,7 @@ import styled from 'styled-components/macro'
 import axios from 'axios'
 import { useRecoilState } from 'recoil'
 import imageCompression from 'browser-image-compression'
+import { FadeLoader } from 'react-spinners'
 import { submitAtom } from '../recoil/store'
 
 const S = {
@@ -50,6 +51,7 @@ const S = {
   `,
   DescriptionWrap: styled.div`
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     border: 1px solid yellow;
@@ -58,6 +60,7 @@ const S = {
   `,
   Description: styled.span`
     color: yellow;
+    padding: 10px;
   `,
   Result: styled.div`
     color: white;
@@ -84,6 +87,7 @@ const Form = (): JSX.Element => {
   const [imageSrc, setImageSrc] = useState('')
   const [result, setResult] = useState<ResultInfo | null>()
   const [isSubmitOn, setIsSubmitOn] = useRecoilState(submitAtom)
+  const [isLoading, setIsLoading] = useState(false)
 
   const imageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -119,11 +123,26 @@ const Form = (): JSX.Element => {
       axios(option).then((res) => {
         JSON.stringify(res.data)
         setResult(res.data)
+        setIsLoading(false)
       })
     }
   }
 
+  const resultData = () => {
+    return isLoading ? (
+      <FadeLoader color="#36d7b7" />
+    ) : (
+      <>
+        <S.Result>{result?.faces[0].celebrity.value}</S.Result>
+        <S.Result>
+          {Math.round(Number(result?.faces[0].celebrity.confidence) * 100)}%
+        </S.Result>
+      </>
+    )
+  }
+
   const submitFormData = () => {
+    setIsLoading(true)
     createFormData()
   }
 
@@ -139,25 +158,22 @@ const Form = (): JSX.Element => {
         />
         {!imageSrc && <S.AddBtn>+</S.AddBtn>}
       </S.Form>
-      {isSubmitOn && (
+
+      {isLoading ? (
+        <FadeLoader color="#36d7b7" />
+      ) : (
         <S.SubmitBtn type="button" onClick={submitFormData}>
-          submit
+          Create DamNick
         </S.SubmitBtn>
       )}
       {!isSubmitOn && (
         <S.DescriptionWrap>
-          <S.Description>
-            사진을 등록후 제출해주시면 닉네임을 만들어 드립니다 !
-          </S.Description>
+          <S.Description>나의 닮은꼴 유명인은 누구 ?</S.Description>
+          <S.Description>닉네임도 지어드림.</S.Description>
         </S.DescriptionWrap>
       )}
       {result ? (
-        <>
-          <S.Result>{result?.faces[0].celebrity.value}</S.Result>
-          <S.Result>
-            {Math.round(Number(result?.faces[0].celebrity.confidence) * 100)}%
-          </S.Result>
-        </>
+        resultData()
       ) : (
         <S.Result>Who is your similar celebrity?</S.Result>
       )}
